@@ -1,0 +1,34 @@
+
+
+
+/**
+===========================
+Workshop
+===========================
+*/
+.workshop-form-elems {
+  display: inline-block;
+}
+
+div.wbench {
+  display: block;
+  min-height: 100%;
+}
+
+div.wbench > p {
+  font-size: smaller;
+}
+
+/**
+===========================
+Workshop Objects
+===========================
+*/
+div.wtobject {
+  display: inline-block;
+}
+
+div.wtobject label:first-of-type {
+  display: inline-block;
+  width: 100%;
+}

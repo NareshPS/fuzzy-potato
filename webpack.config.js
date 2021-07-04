@@ -36,14 +36,14 @@ module.exports = {
   },
   resolve: {
     alias: {
-      // vue: "vue/dist/vue.esm-bundler.js"
+      vue: "vue/dist/vue.esm-bundler.js"
     },
     modules: ['node_modules']
   },
-  // plugins: [
-  //   new webpack.DefinePlugin({
-  //     __VUE_OPTIONS_API__: true,
-  //     __VUE_PROD_DEVTOOLS__: false,
-  //   }),
-  // ],
+  plugins: [
+    new webpack.DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
+    }),
+  ],
 }
