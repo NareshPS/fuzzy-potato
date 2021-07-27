@@ -1,4 +1,3 @@
-
 const dataTransfer = {
   dragged: undefined
 }
@@ -17,13 +16,27 @@ export const drag = {
 }
 
 export const drop = {
+  props: {select: {default: '*'}},
   emits: ['dropped', 'dragover'],
   methods: {
     source() {return dataTransfer.dragged},
+    selection(del /*dropped element */) {
+      const filters = [
+        el => el? el.querySelector(this.select): el
+      ]
+
+      return filters.reduce((el, f) => f(el), del)
+    },
     drop(evt) {
-      evt.currentTarget.isSameNode(this.source())
-      ? ({})
-      : this.$emit('dropped', {target: evt.currentTarget, source: this.source()})
+      const selected = this.selection(this.source()) // selected source
+      const allowDrop = _ => {
+        const same = evt.currentTarget.isSameNode(this.source())
+
+        return !same && selected != null
+      }
+      console.info(allowDrop(), selected)
+
+      allowDrop()? this.$emit('dropped', selected): false
     },
     over(evt) { this.$emit('dragover', evt) }
   },
@@ -36,6 +49,7 @@ export const drop = {
 }
 
 export const dragdrop = {
+  props: drop.props,
   emits: [...drag.emits, ...drop.emits],
 
   methods: {
