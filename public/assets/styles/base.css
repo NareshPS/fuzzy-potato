@@ -107,15 +107,6 @@ Rows
 	float: left;
 }
 
-.row > .button-container {
-	margin: .5vw;
-	padding: .5vw;
-	width: calc(1vw + 1rem);
-	height: calc(1vw + 1rem);
-
-	float: right;
-}
-
 /**
 ===========================
 Forms

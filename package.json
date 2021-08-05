@@ -4,16 +4,22 @@
   "description": "In-Browser Experiments",
   "files": [
     "dist",
-    "src/**/!(.test.js)"
+    "src/**/!{.test.js,.testdata.js}"
   ],
   "main": "src/listen.js",
+  "ava": {
+    "require": [
+      "esm",
+      "./ava.setup-browser-env.js"
+    ]
+  },
   "scripts": {
     "start": "cd dist && node src/listen.js",
     "build": "gulp build",
     "clean": "gulp clean",
     "local": "npx webpack -c webpack.dev.config.js --watch & nodemon -w src src/listen.js",
     "test": "ava \"{public,src}/**/*.test.js\"",
-    "watchtest": "ava \"src/**/*.test.js\" --watch"
+    "watchtest": "ava \"{public,src}/**/*.test.js\" --watch"
   },
   "repository": {
     "type": "git",
@@ -33,6 +39,7 @@
     "@babel/preset-env": "^7.14.5",
     "ava": "^3.15.0",
     "core-js": "^3.15.2",
+    "cross-blob": "^3.0.0",
     "express": "^4.17.1",
     "orb-array": "^1.4.0",
     "orb-functions": "^1.3.0",
@@ -46,9 +53,14 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@tensorflow/tfjs-node": "^3.8.0",
     "babel-loader": "^8.2.2",
+    "browser-env": "^3.3.0",
+    "canvas": "^2.8.0",
+    "esm": "^3.2.25",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
+    "node-blob": "^0.0.2",
     "npm-run-all": "^4.1.5",
     "source-map-loader": "^3.0.0",
     "webpack": "^5.39.1",

@@ -1,5 +1,4 @@
 
-
 const handlers = (fo, resolve, reject) => ({
   read: evt => { resolve(evt.target.result) },
 })

@@ -12,13 +12,6 @@ export const workshop = {
     }
   },
 
-  mounted() {
-    [
-      // {id: 'tf.model', name: 'tf.model', func: tf.model,},
-      // {id: 'tf.pool', name: 'tf.pool', func: tf.pool,}
-    ].forEach((t) => { this.ADDITION({type: 'functions', key: t.id, value: t}) })
-  },
-
   methods: {
     ...mapMutations(['ADDITION', 'DELETION'])
   },

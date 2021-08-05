@@ -46,24 +46,26 @@ export const functions = {
   },
 
   template: `
-  <input
-      placeholder="Type Reference"
-      v-model.trim="reference"
-      v-on:keyup.enter="newfn"
-      @input="resetError"
-      class="workshop-form-elems"
-  >
-  
-  <p v-if="error">{{reference}} <em>is invalid</em></p>
-  <p v-if="error">{{errmsg}}</p>
-  <p v-else="!error"></p>
-  <h5>Functions</h5>
-  <ul>
-    <li v-for="fn in $store.state.functions">
-      <drag>
-        <felement :id="fn.id" :name="fn.name"></felement>
-      </drag>
-    </li>
-  </ul>
+  <div class="functions">
+    <input
+        placeholder="Type Reference"
+        v-model.trim="reference"
+        v-on:keyup.enter="newfn"
+        @input="resetError"
+        class="workshop-form-elems"
+    >
+    
+    <p v-if="error">{{reference}} <em>is invalid</em></p>
+    <p v-if="error">{{errmsg}}</p>
+    <p v-else="!error"></p>
+    <h5>Functions</h5>
+    <ul>
+      <li v-for="fn in $store.state.functions">
+        <drag>
+          <felement :id="fn.id" :name="fn.name"></felement>
+        </drag>
+      </li>
+    </ul>
+  </div>
   `
 }

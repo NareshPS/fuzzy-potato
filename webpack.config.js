@@ -4,8 +4,7 @@ const path = require('path')
 module.exports = {
   mode: 'production',
   entry: {
-    // index: "./public/js/index.js",
-    notebook: "./public/js/notebook.js"
+    index: "./public/js/index.js",
   },
   output: {
     filename: "[name].js",

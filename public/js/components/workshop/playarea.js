@@ -1,9 +1,8 @@
 import { mapMutations } from "vuex"
 import { dragdrop, drop } from "../drag"
 import { pobject } from "./pobject"
-import {makeId} from '../../functions/random'
 import { reduce } from "orb-array"
-import { self } from "orb-functions"
+import { compose } from "../../functions/pobject"
 
 export const playarea = {
   components: {dragdrop, drop, pobject},
@@ -12,26 +11,7 @@ export const playarea = {
     return {
       compose: {
         pobject: (bo /**benched object */) => {
-          const fi = this.functions[bo.id] // function item
-          const transformations = [
-            { cond: _ => fi, func: _ => [{...bo, id: makeId(), type: 'function'}] },
-            { cond: _ => fi && fi.input, func: _ => [{...bo, id: makeId(), type: 'valuefunction', input: fi.input}] },
-            { cond: _ => this.wobjects[bo.id], func: self },
-          ]
-          const tfunc = _ => transformations.reduce(
-            (items, {cond, func}) => {
-              return cond()? func(items): items
-            },
-            bo.items
-          )
-          console.info(`state: `, this.functions, this.wobjects)
-
-          return {
-            id: makeId(),
-            name: bo.name,
-            type: 'pobject',
-            items: tfunc(),
-          }
+          return compose(bo, this.functions, this.wobjects)
         }
       },
     }
@@ -40,6 +20,7 @@ export const playarea = {
     functions() { return this.$store.state.functions },
     pobjects() { return this.$store.state.pobjects },
     wobjects() { return this.$store.state.wobjects },
+    values() { return this.$store.state.values },
 
     arrays() {
       return {
@@ -69,6 +50,8 @@ export const playarea = {
       const props = this.elprops(source) // source element props
       const combine = () => {
         const spo = this.pobjects[props.id] // source pobject
+
+        console.info(`pobject combination: `, tpo, spo, this.values)
 
         // Remove the dropped object from the bench
         this.DELETION({type: 'pobjects', key: spo.id})

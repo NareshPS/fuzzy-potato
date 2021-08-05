@@ -1,25 +1,28 @@
 
-const nodeValue = (node, functions) => {
+const nodeValue = (node, functions, values) => {
   const unroll = (item /** item */, ps /**params */) => {
     const fn = functions[item.name]
-    console.info(`unroll: `, item, fn, ps)
+    console.info(`unroll: `, fn, ps)
 
-    return Promise.resolve(fn.func(...Promise.all(ps)))
+    return Promise.all(ps).then(results => fn.func(...results))
   }
 
   const valuefn = (item /**item */) => {
     const fn = functions[item.name]
 
-    return fn.func(item.value)
+    console.info(`value: `, values[item.id])
+
+    return fn.func(values[item.id])
   }
   // const params = []
-  console.info(`nodeValue: `, node, functions)
+  console.info(`nodeValue: `, node, node.value, values[node.id])
+  console.info(`values: `, values)
 
   const reducefn = (params, item) => {
-    console.info(item.type)
     switch(item.type) {
       case 'function':
         {
+          console.info('case function: ', item, params)
           const value = unroll(item, params.reverse())
           console.info('unrolled: ',  value)
 
@@ -28,25 +31,30 @@ const nodeValue = (node, functions) => {
 
       case 'valuefunction':
         {
-          console.info(`graph.valuefunction: `, item, params.reverse())
-
+          console.info(`graph.valuefunction: pre `, item, params, values)
+          
           const value = valuefn(item)
           params.push(value)
+          
+          console.info(`graph.valuefunction: post `, item, params)
           return params
         }
   
       case 'pobject':
       case 'wobject':
-        const ci = nodeValue(item, functions) // computed item
-        params.push(ci.value)
+        const value = nodeValue(item, functions, values) // computed item
+        params.push(value)
         return params
     }
 
   }
 
-  node.value = node.value || node.items.reduceRight(reducefn , [])[0]
+  const value = node.value || values[node.id] || node.items.reduceRight(reducefn , [])[0]
+  console.info(`value: `, node.value, values[node.id], value)
+  node.value = value
+  values[node.id] = value
 
-  return node
+  return value
 }
 
-export const value = (node, functions) => nodeValue(node, functions).value
+export const value = (node, functions, values) => nodeValue(node, functions, values)

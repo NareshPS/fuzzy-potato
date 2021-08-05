@@ -1,34 +1,40 @@
-
-
-
 /**
 ===========================
-Workshop
+Workshop Layout
 ===========================
 */
-.workshop-form-elems {
-  display: inline-block;
-}
-
-div.wbench {
+div.bench {
   display: block;
   min-height: 100%;
 }
 
-div.wbench > p {
+div.bench > p {
   font-size: smaller;
+}
+
+div.bench,
+div.functions {
+  padding: 1vw;
+  margin: 4vw 0vw;
 }
 
 /**
 ===========================
-Workshop Objects
+List Items
 ===========================
 */
-div.wtobject {
+div.pobject,
+div.felement {
   display: inline-block;
+  padding: 0.5em;
 }
 
-div.wtobject label:first-of-type {
+/**
+===========================
+pobject
+===========================
+*/
+div.pobject label:first-of-type {
   display: inline-block;
   width: 100%;
 }

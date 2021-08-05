@@ -1,5 +1,6 @@
 # Webpack generated files
 public/*.js
+public/*.js.LICENSE.txt
 
 # Logs
 logs
