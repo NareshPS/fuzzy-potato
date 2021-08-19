@@ -11,7 +11,7 @@ const funcs = {
   call: (fn, ...args) => new Function('args', `return ${fn}(...args)`)(args),
   method: (o, name, ...args) => new Function('o', 'args', `return o.${name}(...args)`,)(o, args),
   property: (o, prop) => new Function('o', 'prop', `return o.${prop}`)(o, prop),
-  self: selffn,
+  self: selffn, 
 
   // container functions
   array: (...v) => v,
