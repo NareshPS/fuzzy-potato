@@ -22,12 +22,14 @@ export const textinput = {
   },
 
   template: `
-  <div class="textinput">
-    <h6>Code</h6>
+  <section class="textinput">
+    <div class="section-head">
+      <h5>Code</h5>
+    </div>
     <textarea v-model="value"></textarea>
     <div>
       <button @click="valued">Set</button>
     </div>
-  </div>
+  </section>
   `
 }

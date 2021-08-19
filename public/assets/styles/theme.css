@@ -4,8 +4,10 @@
 List Items
 ===========================
 */
+div.block,
 div.pobject,
-div.felement {
+div.felement,
+div.velement {
   box-shadow: 0.06em 0.06em 0.1em #6666cc, 0.06em 0.06em 0.2em rgb(68, 68, 136);
 }
 

@@ -33,15 +33,15 @@ export const fileinput = {
   },
 
   template: `
-  <div class="fileinput">
-    <section v-if="files.length != 0">
-      <h6>Selection</h6>
-      <ul>
-        <li v-for="file in files">{{file.name}}</li>
-      </ul>
-    </section>
+  <section class="fileinput">
+    <div class="section-head">
+      <h5>Files</h5>
+    </div>
+    <ul v-if="files.length != 0">
+      <li v-for="file in files">{{file.name}}</li>
+    </ul>
 
-    <section>
+    <div>
       <h6>Select</h6>
       <input
         type="file"
@@ -52,7 +52,7 @@ export const fileinput = {
         multiple
       >
       <button @click="close">Close</button>
-    </section>
-  </div>
+    </div>
+  </section>
   `
 }

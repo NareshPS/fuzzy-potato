@@ -1,13 +1,13 @@
 import { mapMutations } from "vuex"
-import { errorsection } from "./errorsection"
+import {object as outputobject} from "./visuals/object"
 import { playarea } from "./playarea"
 import { textinput } from "../textinput"
 import { fileinput } from "../fileinput"
 import { compose } from "../../functions/pobject"
-import { repeat, zip } from "orb-array"
+import { zip } from "orb-array"
 
 export const bench = {
-  components: {errorsection, fileinput, playarea, textinput},
+  components: {fileinput, outputobject, playarea, textinput},
   data() {
     return {
       userinput: {
@@ -24,14 +24,14 @@ export const bench = {
     //   {id: 'tf.conv2d', name: 'tf.conv2d', func: tf.conv2d,},
     // ].forEach((t) => { this.ADDITION({type: 'functions', key: t.id, value: t}) })
 
-    const bos = ['tf.conv2d', 'tf.tensor', 'pick', 'file', 'code', 'png', 'code', 'code', 'code']
-    // const bos = ['pick', 'file', 'code', 'png']
-    const setup = (name) => {
-      const po = compose(this.functions[name], this.functions, this.wobjects)
-      this.ADDITION({type: 'pobjects', key: po.id, value: po})
-    }
+    // const bos = ['tf.conv2d', 'tf.tensor', 'pick', 'file', 'code', 'png', 'code', 'code', 'code']
+    // // const bos = ['pick', 'file', 'code', 'png']
+    // const setup = (name) => {
+    //   const po = compose(this.functions[name], this.functions, this.blocks)
+    //   this.ADDITION({type: 'pobjects', key: po.id, value: po})
+    // }
 
-    bos.forEach(setup)
+    // bos.forEach(setup)
     // const {node, functions, values} = state(
     //   ['tf.conv2d', 'tf.tensor', 'code', 'code', 'code'],
     //   [
@@ -50,8 +50,9 @@ export const bench = {
   computed: {
     functions() { return this.$store.state.functions },
     pobjects() { return this.$store.state.pobjects },
-    wobjects() { return this.$store.state.wobjects },
+    blocks() { return this.$store.state.blocks },
     values() { return this.$store.state.values },
+    benchOutput() {return this.$store.state.bench.output}
   },
 
   methods: {
@@ -80,8 +81,7 @@ export const bench = {
   },
 
   template: `
-  <div class="bench">
-    <h5>Bench</h5>
+  <section>
     <textinput
       v-if="userinput.type==='textinput'"
       @close="userinput.type=''"
@@ -101,8 +101,8 @@ export const bench = {
       @fileinput="switchtoinput($event, 'fileinput')"
     >
     </playarea>
-    <errorsection>
-    </errorsection>
-  </div>
+    <outputobject :data="benchOutput">
+    </outputobject>
+  </section>
   `
 }

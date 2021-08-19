@@ -1,12 +1,17 @@
 import 'regenerator-runtime/runtime'
 import 'core-js/features/promise'
 import * as types from './functions/basic'
+import * as visuals from './functions/visuals'
 
 import {createApp} from 'vue'
-import { createStore } from 'vuex'
-import { workshop } from './components/workshop/workshop'
-import { ADDITION, DELETION, UPDATION, BENCHERROR } from './state/mutations'
+import { createStore, mapMutations } from 'vuex'
+import { functions } from './components/workshop/functions'
+import { bench } from './components/workshop/bench'
+import { shop } from './components/workshop/shop'
+import { ADDITION, ADDITIONS, DELETION, UPDATION, OUTPUT } from './state/mutations'
 import { reduce } from 'orb-array'
+import { self } from 'orb-functions'
+import { errorInfo } from './functions/housekeeping'
 
 const store = createStore({
   state () {
@@ -15,21 +20,27 @@ const store = createStore({
         Object.values(types),
         { key: ({name}) => name, value: v => ({id: v.name, ...v}) }
       ),
-      wobjects: {}, // workshop objects
+      visuals: reduce.o(
+        Object.values(visuals),
+        { key: ({name}) => name, value: v => ({id: v.name, ...v}) }
+      ),
+      blocks: {}, // block objects
       pobjects: {}, // play objects
       values: {},
-      bench: {
-        error: {
-          message: '',
-          source: ''
-        }
-      }
+      bench: { output: {} },
+      shop: { output: {} }
     }
   },
 
   mutations: {
     [ADDITION] (state, {type, key, value}) {
       state[type][key] = value
+    },
+
+    [ADDITIONS] (state, {type, items, key = self, value = self}) {
+      const assign = (item) => state[type][key(item)] = value(item)
+
+      items.forEach((item) => assign(item))
     },
 
     [DELETION] (state, {type, key}) {
@@ -40,16 +51,28 @@ const store = createStore({
       state[type][key] = Object.assign(state[type][key] || {}, updates)
     },
 
-    [BENCHERROR] (state, {message, source} = {message: '', source: ''}) {
-      state.bench.error = {message, source}
-    }
+    [OUTPUT] (state, {type, data = {}}) {
+      state[type].output = data
+    },
   }
 })
 
 const app = createApp({
-  components: {workshop},
+  components: {functions, bench, shop},
   data() {
     return {}
+  },
+  methods: {
+    ...mapMutations([OUTPUT]),
+    benchwork(fn) { this.safecall(fn, 'bench') },
+    shopwork(fn) {this.safecall(fn, 'shop')},
+    safecall(fn, section) {
+      try { fn() }
+      catch (e) {
+        console.error(`section: ${section}`, e)
+        this.OUTPUT({type: section, data: errorInfo(e)})
+      }
+    }
   }
 })
 

@@ -3,20 +3,39 @@
 Workshop Layout
 ===========================
 */
-div.bench {
-  display: block;
+section.bench {
   min-height: 100%;
 }
 
-div.bench > p {
+/**
+===========================
+Sections
+===========================
+*/
+section {
   font-size: smaller;
 }
 
-div.bench,
-div.functions {
-  padding: 1vw;
-  margin: 4vw 0vw;
+.section-head > h5:first-of-type{
+  flex: 1;
+  display: inline-block;
 }
+
+.section-head {
+  display: flex;
+  align-items: center;
+}
+
+.section-head > button {
+  margin-left: auto;
+  margin-top: unset;
+}
+
+section.construction-zone,
+section > div.shop-drop-zone {
+  min-height: 5vw;
+}
+
 
 /**
 ===========================
@@ -24,7 +43,8 @@ List Items
 ===========================
 */
 div.pobject,
-div.felement {
+div.felement,
+div.velement {
   display: inline-block;
   padding: 0.5em;
 }
@@ -34,7 +54,48 @@ div.felement {
 pobject
 ===========================
 */
-div.pobject label:first-of-type {
-  display: inline-block;
-  width: 100%;
+div.pobject input:first-of-type {
+  display: block;
+}
+
+div.vis-networkitem {
+  font-size: smaller;
+}
+
+/**
+===========================
+Play Area
+===========================
+*/
+.construction-zone {
+  display: flex;
+}
+
+.construction-zone > div:first-child {
+  flex: 1
+}
+
+.construction-zone > aside {
+  margin-left: auto;
+}
+
+/**
+===========================
+Trash Zone
+===========================
+*/
+aside.trash-zone {
+  font-size: large;
+  width: 2em;
+  min-height: 100%;
+}
+
+aside.trash-zone > div:first-child {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+aside.trash-zone.active,
+aside.trash-zone:hover {
+  background-color: rgba(166, 43, 43, 0.5);
 }

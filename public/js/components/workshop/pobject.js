@@ -1,121 +1,103 @@
-import { watchEffect } from "vue"
+import { last, reduce } from "orb-array"
 import { mapMutations } from "vuex"
+import {drop} from 'orb-vue-dragdrop'
 import { value as graphValue } from '../../functions/graph'
-import { makeId } from "../../functions/random"
-import { BENCHERROR, DELETION, UPDATION } from "../../state/mutations"
-import { images } from "./visuals/images"
-import { texts } from "./visuals/texts"
+import { ADDITION, OUTPUT, DELETION, UPDATION } from "../../state/mutations"
+import { blockname } from "./blockname"
+import { lookup } from "../../functions/lookup"
+import { visuals } from "./visuals"
 
+/**
+ * Invariants:
+ * The pobjects combination adds dragged pobjects as a last child to the dropped object.
+ * The function drop creates a new pobjects with the function as a child.
+ * The pobject is resolved from right to left. The pobject values are cached until a function is encountered.
+ * The function uses the values evaluated so far as argument.
+ * The function creates a new value that will become an argument for the upstream function.
+ */
 export const pobject = {
-  components: {images, texts},
+  components: { blockname, drop, visuals},
   props: ['item'],
   emits: ['textinput', 'fileinput'],
-  data() {
-    return {
-      visuals: {
-        images: {id: makeId(), label: 'Images'},
-        texts: {id: makeId(), label: 'Texts'}
-      },
-      visual: '',
-      placeholder: '',
-    }
-  },
-  mounted() {
-    /**
-     * Apply value updates to the placeholder.
-     */
-    watchEffect(_ => {
-      const assignfn = (rv /**raw value */) => {
-        rv instanceof Promise
-        ? rv.then((v) => this.placeholder = v)
-        : (this.placeholder = rv)
-      }
-
-      this.item.value && assignfn(this.item.value)
-    })
-
-    /**Initial placeholder value */
-    this.item.items.length == 1 && (this.placeholder = this.item.items[0].name) 
-  },
   computed: {
-    visualSelector() { return `${item.id}-visuals`},
     pobjects() {return this.$store.state.pobjects},
     functions() {return this.$store.state.functions},
     values() {return this.$store.state.values},
+
+    input() { return this.item.items[0].input },
+    editable() {return this.item.items.length == 1 && this.input},
   },
 
   methods: {
-    ...mapMutations([BENCHERROR, UPDATION, DELETION]),
-    named(evt) {
+    ...mapMutations([OUTPUT, ADDITION, UPDATION, DELETION]),
+    renaming(name) {
       this.UPDATION({
         type: 'pobjects',
         key: this.item.id,
-        updates: {name: evt.currentTarget.value}
+        updates: {name}
       })
     },
 
-    visualChange() {
-      console.info(this.visual)
+    decomposition() {
+      const recent = last(this.item.items) || {}
+      const bench = (po) => {
+        this.ADDITION({type: 'pobjects', key: po.id, value: po})
+        this.DELETION({type: 'values', key: this.item.id})
+      }
+
+      recent.type === 'pobject'? bench(this.item.items.pop()): ({})
+    },
+
+    edit() {
+      console.info(`pobject.edit: item: %O type: %O`, this.item, this.input)
+
+      this.editable? this.$emit(`${this.input}input`, this.item): this.decomposition()
+    },
+        
+    elprops(el) {
+      const afn = a => el.getAttribute(a)
+      return reduce.o(['name'], {value: afn})
+    }, // dropped object props
+
+    visualization(el /*visual element*/) {
+      const props = this.elprops(el)
+      const visual = lookup(props, 'name', '')
+
       this.UPDATION({
         type: 'pobjects',
         key: this.item.id,
-        updates: {visuals: {type: this.visual}}
+        updates: {visual}
       })
-    },
 
-    visualActive() {
-      // console.info(`visualActive: `, this.visual && this.item.value)
-      return this.visual && this.item.value
-    },
-
-    inputType() {
-      // console.info(`inputType: `, this.item)
-      return this.item.items[0].input
-    },
-    
-    userInput() {
-      const type = this.inputType()
-      // console.info(`userInput: `, this.item, type)
-
-      type? this.$emit(`${type}input`, this.item): ({})
+      console.info('pobject: new value: %O visual: %O', visual, this.visual)
     },
 
     async evaluation() {
-      try {
-        // Clear the old value
-        this.DELETION({type: 'values', key: this.item.id})
+      // Clear the old value
+      this.DELETION({type: 'values', key: this.item.id})
 
-        // Calculate the new value
-        const value = graphValue(this.item, this.functions, this.values)
-        // console.info(`evaluation: `, this.item, value, this.values)
-        this.UPDATION({type: 'pobjects', key: this.item.id, updates: {value}})
-      } catch (e) {
-        this.BENCHERROR({message: e.stack, source: 'pobject'})
+      // Calculate the new value
+      const value = graphValue(this.item, this.functions, this.values)
+      // console.info(`evaluation: `, this.item, value, this.values)
+      this.UPDATION({type: 'values', key: this.item.id, value})
 
-        throw e
-      }
+      value
+      .then((pv) => this.OUTPUT({type: 'bench', data: {id: this.item.id, value: pv}}))
+      .catch(err => this.OUTPUT({type: 'bench', data: err}))
     }
   },
 
   template: `
-  <div
+  <drop
     :id="item.id" :name="item.name"
     class="pobject"
-    @dblclick.stop.prevent="userInput"
+    select="div:first-child.velement"
+    @dblclick.stop.prevent="edit"
+    @dropped="visualization"
   >
-    <input :placeholder="placeholder" :value="item.name" @change="named">
-    <ul>
-      <li v-for="(v, name) in visuals">
-        <input
-          name="visualSelector" type="radio" title="Select a visual type" :value="name"
-          :id="v.id" v-model="visual"
-          @change="visualChange"
-        >
-        <label for="v.id">{{v.label}}</label>
-      </li>
-    </ul>
-    <component v-if="visualActive()" :is="visual" :value="item.value"></component>
+    <blockname :item="item" @renaming="renaming"></blockname>
+    <visuals :item="item"></visuals>
     <button @click="evaluation">Evaluate</button>
-  </div>
+  </drop>
   `
 }

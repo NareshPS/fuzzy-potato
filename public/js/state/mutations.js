@@ -1,5 +1,6 @@
 
 export const ADDITION = 'ADDITION'
+export const ADDITIONS = 'ADDITIONS'
 export const DELETION = 'DELETION'
 export const UPDATION = 'UPDATION'
-export const BENCHERROR = 'BENCHERROR'
+export const OUTPUT = 'OUTPUT'

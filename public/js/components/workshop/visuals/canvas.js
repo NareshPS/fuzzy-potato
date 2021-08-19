@@ -1,10 +1,9 @@
 import { watchEffect } from "vue"
 import { mapMutations } from "vuex"
-import { pixels } from "../../../functions/image"
 import { OUTPUT } from "../../../state/mutations"
-import { canvasitem } from "./canvasitem"
+import {canvasitem} from './canvasitem'
 
-export const images = {
+export const canvas = {
   components: {canvasitem},
   props: ['section', 'value'],
 
@@ -16,10 +15,9 @@ export const images = {
 
   mounted() {
     watchEffect(_ => {
-      console.info(`image.value: `, this.value)
+      console.info(`canvas: value: `, this.value)
       this.value
       ? this.value
-      .then(vs => Promise.all(vs.map((v) => pixels(v))))
       .then(vs => this.artifacts = vs)
       .catch(err => this.OUTPUT({type: this.section, data: err}))
       : []
@@ -31,7 +29,7 @@ export const images = {
   },
 
   template:`
-  <figure class="visual-images">
+  <figure class="vis-canvas">
     <canvasitem v-for="artifact in artifacts" :value="artifact"></canvasitem>
   </figure>
   `

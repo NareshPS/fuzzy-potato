@@ -1,9 +1,10 @@
-import { mapMutations, mapState } from "vuex"
-import { drag } from "../drag"
+import { mapMutations } from "vuex"
+import { drag } from "orb-vue-dragdrop"
 import { felement } from "./felement"
+import { velement } from "./velement"
 
 export const functions = {
-  components: {felement, drag},
+  components: {felement, drag, velement},
   data() {
     return {
       error: false,
@@ -46,7 +47,10 @@ export const functions = {
   },
 
   template: `
-  <div class="functions">
+  <section>
+    <div class="section-head">
+      <h5>Functions</h5>
+    </div>
     <input
         placeholder="Type Reference"
         v-model.trim="reference"
@@ -58,7 +62,6 @@ export const functions = {
     <p v-if="error">{{reference}} <em>is invalid</em></p>
     <p v-if="error">{{errmsg}}</p>
     <p v-else="!error"></p>
-    <h5>Functions</h5>
     <ul>
       <li v-for="fn in $store.state.functions">
         <drag>
@@ -66,6 +69,13 @@ export const functions = {
         </drag>
       </li>
     </ul>
-  </div>
+    <ul>
+      <li v-for="vs in $store.state.visuals">
+        <drag>
+          <velement :id="vs.id" :name="vs.name"></velement>
+        </drag>
+      </li>
+    </ul>
+  </section>
   `
 }

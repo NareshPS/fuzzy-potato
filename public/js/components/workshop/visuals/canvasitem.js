@@ -1,6 +1,6 @@
 import { watchEffect } from "vue"
 
-export const image = {
+export const canvasitem = {
   props: ['value'],
   mounted() {
     watchEffect(_ => { this.paint() })
@@ -10,7 +10,6 @@ export const image = {
     paint() {
       const ctx = this.$el.getContext("2d")
       const imgContext = ctx.createImageData(this.value.width, this.value.height)
-      
       this.value.blob.forEach((rpv, index) => { imgContext.data[index] = rpv })
       ctx.putImageData(imgContext, 0, 0)
     }

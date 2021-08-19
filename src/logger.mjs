@@ -1,19 +1,20 @@
-const pino = require('pino')
-const {trim} = require('orb-object')
+import pino from 'pino'
+import {trim} from 'orb-object'
 
-const __caller_stack_id = 6
+const __caller_stack_id = 7
 const CWD = process.cwd()
 
 Object.defineProperty(global, '__stack', {
   get: function() {
-      var orig = Error.prepareStackTrace;
+      const orig = Error.prepareStackTrace;
 
       Error.prepareStackTrace = (_, stack) => stack
-      var err = new Error;
-      Error.captureStackTrace(err, arguments.callee);
+
+      const err = new Error;
+      Error.captureStackTrace(err);
 
       // Do not remove the below line. It makes sure that the stack is available after prepareStackTrace is reset
-      var stack = err.stack;
+      const stack = err.stack;
       Error.prepareStackTrace = orig;
       return stack
   }
@@ -45,7 +46,7 @@ function logMethod(args, method) {
   }
 }
 
-const logger = pino({
+export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   base: null, // Removes pid and hostname from the log line
   timestamp: false, // Does not add timestamp to the log lines
@@ -57,5 +58,3 @@ const logger = pino({
     }
   }
 })
-
-module.exports = logger

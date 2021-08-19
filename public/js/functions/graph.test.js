@@ -1,10 +1,9 @@
 import {default as test} from 'ava'
-import * as types from './basic'
 
-import { map, range, reduce, zip } from 'orb-array'
-import {value} from './graph'
-import { compose } from './pobject'
-import { pngsrc } from './graph.testdata'
+import { map, reduce } from 'orb-array'
+import {nodes, value} from './graph'
+import { pngsrc, states } from './graph.test.data'
+import { state, state2 } from './state.test.fns'
 
 /////////////////////////////// value-types [start] ///////////////////////////////
 test('value-code', async t => {
@@ -78,13 +77,12 @@ test('value-png', async t => {
 
 /////////////////////////////// value-transformations [start] ///////////////////////////////
 test('value-map', async t => {
-  const {node, functions, values} = state(
-    ['map', 'code', 'code'],
-    [undefined, '[2, 3, 4]', '(v) => v*2'],
+  const {nodes, functions, values} = state2(
+    [{name: 'map'}, {value: '[2, 3, 4]'}, {value: '(v) => v*2'}],
     [[0, 1], [0, 2]]
   )
-
-  const output = await value(node, functions, values)
+  const [node] = nodes
+  const output = await value(node.object, functions, values)
 
   t.deepEqual(output, map.scale([2, 3, 4], 2))
 })
@@ -112,79 +110,66 @@ test('value-pick-array', async t => {
 })
 
 test('value-filter', async t => {
-  const {node, functions, values} = state(
-    ['filter', 'code', 'code'],
-    [undefined, '[1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4]', '(_, index) => (index+1)%4 != 0'],
+  const {nodes, functions, values} = state2(
+    [
+      {name: 'filter'},
+      {value: '[1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4]'},
+      {value: '(_, index) => (index+1)%4 != 0'}
+    ],
     [[0, 1], [0, 2]]
   )
-
-  const output = await value(node, functions, values)
+  const [node] = nodes
+  const output = await value(node.object, functions, values)
   t.deepEqual(output, [1, 1, 1, 2, 2, 2, 4, 4, 4])
 })
 /////////////////////////////// value-transformations [end] ///////////////////////////////
 
 /////////////////////////////// value-tensors [start] ///////////////////////////////
 test('value-tf.tensor', async t => {
-  const {node, functions, values} = state(
-    ['tf.tensor', 'code', 'code'],
-    [undefined, '[1, 1, 2, 2, 4, 4, 8, 8]', '{shape: [2, 2, 2]}'],
-    [[0, 1], [0, 2]]
+  const {nodes, functions, values} = state2(
+    [
+      {name: 'tf.tensor'},
+      {value: '[1, 1, 2, 2, 4, 4, 8, 8]'},
+      {value: '[2, 2, 2]'},
+    ],
+    [
+      [0, 1],
+      [0, 2],
+    ]
   )
+  const node = nodes[0].object
 
   const output = await value(node, functions, values)
   t.deepEqual(output.arraySync(), [ [ [ 1, 1 ], [ 2, 2 ] ], [ [ 4, 4 ], [ 8, 8 ] ] ])
 })
 
 test('value-tf.conv2d', async t => {
-  const {node, functions, values} = state(
-    ['tf.conv2d', 'tf.tensor', 'code', 'code', 'code'],
+  const {nodes, functions, values} = state2(
     [
-      undefined,
-      undefined,
-      '[1, 1, 2, 2, 4, 4, 8, 8]',
-      '{shape: [2, 2, 2]}',
-      '{filters: [[[[1], [1]], [[1], [1]]], [[[1], [1]], [[1], [1]]]], strides: 2, pad: "same"}',
+      {name: 'tf.conv2d'},
+      {name: 'tf.tensor'},
+      {value: '[1, 1, 2, 2, 4, 4, 8, 8]'},
+      {value: '[2, 2, 2]'},
+      {value: '[[[[1], [1]], [[1], [1]]], [[[1], [1]], [[1], [1]]]]'},
+      {value: '2'},
+      {value: '\'same\''}
     ],
-    [[1, 2], [1, 3], [0, 1], [0, 4]]
+    [
+      [1, 2],
+      [1, 3],
+      [0, 1],
+      [0, 4],
+      [0, 5],
+      [0, 6],
+    ]
   )
+  const node = nodes[0].object
   const output = await value(node, functions, values)
   t.deepEqual(output.arraySync(), [ [ [ 30 ] ] ])
 })
 
 test('value-tf.conv2d-image', async t => {
-  const {nodes, functions, values} = state2(
-    [
-      {name: 'tf.tensor'},
-      {name: 'pick'},
-      {name: 'pick'},
-      {name: 'png'},
-      {value: `[\"${pngsrc}\"]`},
-      {value: 0},
-      {value: '\"blob\"'},
-      {value: '{shape: [28,28,3], dtype: \'float32\'}'},
-      {name: 'call'},
-      {value: '\"Uint8Array.from\"'},
-      {name: 'filter'},
-      {value: '(v, index) => (index+1)%4!=0'},
-      {name: 'tf.conv2d'}, //12
-      {value: '{filters: [[[[1], [1], [1]], [[1], [1], [1]]], [[[1], [1], [1]], [[1], [1], [1]]]], strides: 2, pad: "same"}'}
-    ],
-    [
-      [3, 4],
-      [2, 3],
-      [2, 5],
-      [1, 2],
-      [1, 6], //gets the blob
-      [10, 1],
-      [10, 11], // removes the alpha channel
-      [8, 9],
-      [8, 10], // converts to Uint8Array
-      [0, 8],
-      [0, 7], // converts to a tensor
-      [12, 0],
-      [12, 13]
-    ]
-  )
+  const {nodes, functions, values} = states.conv2dimage()
   const node = nodes[12].object
   // console.info(node, values)
   const output = await value(node, functions, values)
@@ -193,36 +178,19 @@ test('value-tf.conv2d-image', async t => {
 })
 /////////////////////////////// value-tensors [end] ///////////////////////////////
 
-/////////////////////////////// Utility Methods [start] ///////////////////////////////
-const state = (names, typevalues, sequence) => {
-  const functions = reduce.o(
-    Object.values(types),
-    { key: ({name}) => name, value: v => ({id: v.name, ...v}) }
+/////////////////////////////// nodes [start] ///////////////////////////////
+test('nodes', t => {
+  const {defs, nodes: statenodes} = states.conv2dimage()
+  const heads = reduce.o(
+    Object.values(statenodes).map(({object}) => object),
+    {key: ({id}) => id}
   )
+  console.info(`node heads: `, heads)
+  const graphnodes = nodes(heads)
+  const valuenodes = graphnodes.filter(({type}) => type === 'valuefunction')
 
-  // console.info(`functions: `, functions)
-
-  const tos = names
-  .map((name) => functions[name])
-  .map((t) => compose(t, functions, []))
-  const [node, values] = [tos[0], {}]
-
-  zip(typevalues, tos).forEach(([tv, to]) => values[to.items[0].id] = tv)
-  sequence.forEach(([to, from] /**sequence item */) => { tos[to].items.push(tos[from]) })
-
-  return {node, functions, values}
-}
-
-const state2 = (defs, sequence) => {
-  const functions = reduce.o(
-    Object.values(types),
-    { key: ({name}) => name, value: v => ({id: v.name, ...v}) }
-  )
-  const namefn = (v) => v.name || 'code'
-  const nodes = reduce.a(defs, {value: (v) => ({...v, object: compose(functions[namefn(v)], functions, [])})})
-  const values = reduce.o(nodes, {key: (v) => v.object.items[0].id, value: (v) => v.value})
-  sequence.forEach(([to, from]) => {nodes[to].object.items.push(nodes[from].object)})
-  
-  return {nodes, functions, values}
-}
-/////////////////////////////// Utility Methods [end] ///////////////////////////////
+  // console.info(`output nodes: `, valuenodes, defs.filter(({value}) => value))
+  t.is(graphnodes.length, defs.length * 2)
+  t.is(valuenodes.length, defs.filter(({value}) => value != undefined).length)
+})
+/////////////////////////////// nodes [end] ///////////////////////////////
