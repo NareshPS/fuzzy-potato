@@ -5,11 +5,12 @@ import {pixels as pngpixels} from './png'
 
 const funcs = {
   // type functions
+  call: (fn, ...args) => new Function('args', `return ${fn}(...args)`)(args),
   code: v => new Function(`return ${v}`)(),
   file: (vs = []) => Promise.all(range(vs.length).map((index) => read(vs.item(index)))),
-  png: (fs = []) => Promise.all(fs.map((f) => pngpixels(f))),
-  call: (fn, ...args) => new Function('args', `return ${fn}(...args)`)(args),
   method: (o, name, ...args) => new Function('o', 'args', `return o.${name}(...args)`,)(o, args),
+  name: (name) => name,
+  png: (fs = []) => Promise.all(fs.map((f) => pngpixels(f))),
   property: (o, prop) => new Function('o', 'prop', `return o.${prop}`)(o, prop),
   self: selffn, 
 
@@ -31,11 +32,12 @@ const funcs = {
 }
 
 // type exports
+export const call = {name: 'call', func: funcs.call}
 export const code = {name: 'code', func: funcs.code, input: 'text'}
 export const file = {name: 'file', func: funcs.file, input: 'file'}
-export const png = {name: 'png', func: funcs.png}
-export const call = {name: 'call', func: funcs.call}
 export const method = {name: 'method', func: funcs.method}
+export const name = {name: 'name', func: funcs.name, input: 'name'}
+export const png = {name: 'png', func: funcs.png}
 export const property = {name: 'property', func: funcs.property}
 export const self = {name: 'self', func: funcs.self}
 

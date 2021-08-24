@@ -63,7 +63,7 @@ export const playarea = {
         })
       }
 
-      const valuefn = _ => to.items.length == 1 && to.items[0].input
+      const valuefn = _ => to.items.length == 1 && to.items[0].input && to.items[0].input != 'name'
       console.info(`pobject combination request: source: %O target: %O valuefn?: %O`, so, to, valuefn())
 
       valuefn()

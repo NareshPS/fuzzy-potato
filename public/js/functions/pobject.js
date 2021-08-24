@@ -6,9 +6,10 @@ import { makeId } from "./random"
 export const compose = (bo, functions, blocks) => {
   const fi = functions[bo.id] // function item
   const bi = blocks[bo.id] // block item
+  const inputfn = (input) => `${input == 'name'? 'name': 'input'}function`
   const transformations = [
     { cond: _ => fi, func: _ => [{...bo, id: makeId(), type: 'function'}] },
-    { cond: _ => fi && fi.input, func: _ => [{...bo, id: makeId(), type: 'valuefunction', input: fi.input}] },
+    { cond: _ => fi && fi.input, func: _ => [{...bo, id: makeId(), type: inputfn(fi.input), input: fi.input}] },
     { cond: _ => bi, func: _ => bi.items},
   ]
   const tfunc = _ => transformations.reduce(
@@ -36,7 +37,7 @@ export const state = {
   encode: (pobjects, values) => {
     const pos = Object.values(pobjects)
     const unrolledpos = nodes(pos)
-    const valuepos = unrolledpos.filter(({type}) => type === 'valuefunction') // pobjects with user defined values
+    const valuepos = unrolledpos.filter(({type}) => type === 'inputfunction') // pobjects with user defined values
     const povalues = reduce.o(valuepos, {key: ({id}) => id, value: ({id}) => values[id]}) // pobject values
 
     return {

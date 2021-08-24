@@ -8,6 +8,10 @@ const nodeValue = (node, functions, values) => {
     )
   }
 
+  const namefn = _ => {
+    return Promise.resolve(node.name)
+  }
+
   const valuefn = (item /**item */) => {
     const fn = functions[item.name]
     return Promise.resolve(fn.func(values[item.id]))
@@ -15,6 +19,15 @@ const nodeValue = (node, functions, values) => {
 
   const reducefn = (params, item) => {
     switch(item.type) {
+      // namefunction must appear prior to the function.
+      // The name functions use the name for value computation.
+      // The top item function in a node uses the name.
+      case 'namefunction': {
+        const name = namefn()
+        console.info(`nodeValue: namefunction: item: %O node: %O`, item, node)
+        return [name]
+      }
+      
       case 'function': {
         const value = unroll(item, params.reverse())
         console.info('nodeValue: unrolled item: %O value: %O ', item, value)
@@ -22,11 +35,11 @@ const nodeValue = (node, functions, values) => {
         return [value]
       }
 
-      case 'valuefunction': {
+      case 'inputfunction': {
         const value = valuefn(item)
         params.push(value)
         
-        console.info(`graph.valuefunction: item: %O params: %O value: %O`, item, params, value)
+        console.info(`graph.inputfunction: item: %O params: %O value: %O`, item, params, value)
         return params
       }
   

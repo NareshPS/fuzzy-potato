@@ -1,4 +1,5 @@
 import { watchEffect } from "vue"
+import { ensurePromise } from "../../functions/housekeeping"
 
 export const blockname = {
   props: ['item'],
@@ -15,7 +16,7 @@ export const blockname = {
     watchEffect(_ => {
       const assignfn = (rv = this.derivedPlaceholder()) =>
       {
-        rv.then((v) => {
+        ensurePromise(rv).then((v) => {
           console.info(`blockname: `, v, v instanceof Object)
           this.placeholder = v instanceof Object? v.toString(): v
         })
@@ -31,7 +32,7 @@ export const blockname = {
   },
   methods: {
     naming(evt) { this.$emit('renaming', evt.currentTarget.value) },
-    derivedPlaceholder() {return Promise.resolve(this.item.items.length == 1? this.item.items[0].name: 'name')}
+    derivedPlaceholder() {return this.item.items.length == 1? this.item.items[0].name: 'name'}
   },
   template: `
   <input

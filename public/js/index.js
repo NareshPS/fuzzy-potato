@@ -3,6 +3,8 @@ import 'core-js/features/promise'
 import * as types from './functions/basic'
 import * as visuals from './functions/visuals'
 
+import createPersistedState from 'vuex-persistedstate'
+
 import {createApp} from 'vue'
 import { createStore, mapMutations } from 'vuex'
 import { functions } from './components/workshop/functions'
@@ -14,6 +16,7 @@ import { self } from 'orb-functions'
 import { errorInfo } from './functions/housekeeping'
 
 const store = createStore({
+  plugins: [createPersistedState({paths: ['blocks', 'values']})],
   state () {
     return {
       functions: reduce.o(

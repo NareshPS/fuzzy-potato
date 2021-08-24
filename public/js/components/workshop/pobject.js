@@ -49,7 +49,7 @@ export const pobject = {
     },
 
     edit() {
-      console.info(`pobject.edit: item: %O type: %O`, this.item, this.input)
+      console.info(`pobject.edit: item: %O input: %O`, this.item, this.input)
 
       this.editable? this.$emit(`${this.input}input`, this.item): this.decomposition()
     },

@@ -27,10 +27,14 @@ export const state2 = (defs, sequence) => {
     Object.values(types),
     { key: ({name}) => name, value: v => ({id: v.name, ...v}) }
   )
-  console.info(defs, sequence)
 
-  const namefn = (v) => v.name || 'code'
-  const nodes = reduce.a(defs, {value: (v) => ({...v, object: compose(functions[namefn(v)], functions, {})})})
+  const name = {
+    fn: (def) => def.name || 'code',
+    pobject: (def) => def.pobject 
+  }
+
+  const pobjectcompose = (def) => ({...compose(functions[name.fn(def)], functions, {}), name: name.pobject(def)})
+  const nodes = reduce.a(defs, {value: (v) => ({...v, object: pobjectcompose(v)})})
   const values = reduce.o(nodes, {key: (v) => v.object.items[0].id, value: (v) => v.value})
   sequence.forEach(([to, from]) => {nodes[to].object.items.push(nodes[from].object)})
   

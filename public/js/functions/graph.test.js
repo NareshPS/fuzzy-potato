@@ -187,7 +187,7 @@ test('nodes', t => {
   )
   console.info(`node heads: `, heads)
   const graphnodes = nodes(heads)
-  const valuenodes = graphnodes.filter(({type}) => type === 'valuefunction')
+  const valuenodes = graphnodes.filter(({type}) => type === 'inputfunction')
 
   // console.info(`output nodes: `, valuenodes, defs.filter(({value}) => value))
   t.is(graphnodes.length, defs.length * 2)
